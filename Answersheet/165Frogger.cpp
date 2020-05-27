@@ -1,52 +1,80 @@
 #include <iostream>
-#define _USE_MATH_DEFINES
+#include <memory.h>
 #include <cmath>
 #include <math.h>
-#include <iomanip>
 #include <algorithm>
-
+#include <iomanip>
 using namespace std;
 
-struct circle
+#define MIN 10000000
+
+struct node
 {
-	int x, y, r;
-}c[300];
+	int x, y;
+};
+node stones[300] = {};
+double matrix[300][300] = {};
+int visited[300] = {};
+double d[300] = {};
+
+double distance(node m, node n)
+{
+	return (double)sqrt((m.x - n.x)*(m.x - n.x) + (m.y - n.y)*(m.y - n.y));
+}
+
+double shortestPath(int n) {
+	//intializtion
+	memset(visited, 0, sizeof(visited));
+	for (int i = 1; i < n; i++)
+		d[i] = MIN;
+	d[0] = 0; // starting point
+
+	// build the adjacent matrix
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < n; j++)
+			matrix[i][j] = distance(stones[i], stones[j]);
+
+	for (int i = 0; i < n; i++)
+	{	
+		// traverse until all the nodes has been visited
+		int u = -1;
+		double minn = MIN;
+		for (int j = 0; j < n; j++)
+		{
+			if (!visited[j] && d[j] <= minn)
+			{
+				u = j;
+				minn = d[j];
+ 			}
+		}
+		visited[u] =1;
+		for (int k = 0; k < n; k++) {
+			d[k] = min(d[k], max(d[u], matrix[u][k]));
+			// the minimum one of the longest edge
+		}
+	}
 
 
+	return d[1];
+}
 
 int main() {
-	int n;
+	int num;
+	int cases = 1;
 	do
 	{
-		cin >> n;
-		if (n == 0)
+		cin >> num;
+		if (num == 0)
 			break;
-		for (int i = 1; i <= n; i++)
-			cin >> c[i].x >> c[i].y >> c[i].r;
-		double max = 0;
+		for (int i = 0; i < num; i++)
+			cin >> stones[i].x >> stones[i].y;
 
-		for (double i = 0; i <= 360; i += 0.25)
-		{
-			double u = 500 * cos(i*M_PI / 180);
-			double v = 500 * sin(i*M_PI / 180);
-			double total = 0;
-			for (int j = 1; j <= n; j++)
-			{
-				double length = (u*c[j].x + v * c[j].y) / (sqrt(pow(u, 2) + pow(v, 2)));
-				if (length > 0) {
-					// cos(theta) must larger than 0, theta cannot be larger than 90 degree
-					double perpendicular = pow(c[j].x, 2) + pow(c[j].y, 2) - pow(length, 2);
-					if (perpendicular < pow(c[j].r, 2)) {
-						// have intersections
-						double newLength = 2 * sqrt(pow(c[j].r, 2) - perpendicular);
-						total += newLength;
-					}
-				}
-			}
-			if (total > max)
-				max = total;
-		}
-		cout << setprecision(3) << fixed << max << endl;
+		double result = shortestPath(num);
+
+		cout << "Scenario #" << cases++ << endl;
+		cout << "Frog Distance = " <<fixed<<setprecision(3)<<result << endl;
+		cout << endl;
+		
 	} while (true);
 	return 0;
 }
