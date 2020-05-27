@@ -1,52 +1,73 @@
 #include <iostream>
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include <math.h>
 #include <iomanip>
-#include <algorithm>
-
 using namespace std;
 
-struct circle
+#define numRows 8
+#define numCols 8
+int row; int column;
+int counter; int colIndex[8] = {};
+int used[numRows] = {};
+
+bool isSafe(int row, int col)
 {
-	int x, y, r;
-}c[300];
+	bool safe = true;
+	//row has been checked , check the diagonal
+	for (int i = col - 1; i >= 0 && safe; i--)
+	{
+		int j = row + col - i;
+		if (j < numRows && colIndex[i] == j)
+			safe = false; // check upper diagonal
 
+		j = row - (col - i);
+		if (j >= 0 && colIndex[i] == j)// check lower diagonal
+			safe = false;
+	}
+	return safe;
+}
 
+void eightQueen(int col) {
+	if (col == 8 && colIndex[column - 1] == row - 1)
+	{
+		counter++; cout << setw(2) << counter << "     ";
+		for (int i = 0; i < numCols; i++)
+			cout << " " << colIndex[i] + 1;
+		cout << endl;
+	}
+	else
+	{
+		for (int i = 0; i < numRows; i++)
+		{
+			// check whether this row has been used or not
+			// chaeck whether this position is safe
+			if (used[i] == 0 && isSafe(i, col))
+			{
+				used[i] = 1;
+				colIndex[col] = i;
+				eightQueen(col + 1);
+				used[i] = 0;
+			}
+		}
+	}
+	return;
+}
 
 int main() {
-	int n;
-	do
+	int cases;
+	cin >> cases;
+	while (cases > 0)
 	{
-		cin >> n;
-		if (n == 0)
-			break;
-		for (int i = 1; i <= n; i++)
-			cin >> c[i].x >> c[i].y >> c[i].r;
-		double max = 0;
-
-		for (double i = 0; i <= 360; i += 0.25)
-		{
-			double u = 500 * cos(i*M_PI / 180);
-			double v = 500 * sin(i*M_PI / 180);
-			double total = 0;
-			for (int j = 1; j <= n; j++)
-			{
-				double length = (u*c[j].x + v * c[j].y) / (sqrt(pow(u, 2) + pow(v, 2)));
-				if (length > 0) {
-					// cos(theta) must larger than 0, theta cannot be larger than 90 degree
-					double perpendicular = pow(c[j].x, 2) + pow(c[j].y, 2) - pow(length, 2);
-					if (perpendicular < pow(c[j].r, 2)) {
-						// have intersections
-						double newLength = 2 * sqrt(pow(c[j].r, 2) - perpendicular);
-						total += newLength;
-					}
-				}
-			}
-			if (total > max)
-				max = total;
+		counter = 0;
+		cin >> row >> column;
+		cout << "SOLN       COLUMN" << endl;
+		cout << " #      1 2 3 4 5 6 7 8" << endl << endl;
+		eightQueen(0);  // iterate from column 1, index 0 
+		// if row column is in the solution, print it out
+		cases--;
+		if (cases) {
+			cout <<endl;
 		}
-		cout << setprecision(3) << fixed << max << endl;
-	} while (true);
+			
+	}
+
 	return 0;
 }
