@@ -1,52 +1,81 @@
 #include <iostream>
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include <math.h>
-#include <iomanip>
-#include <algorithm>
-
+#include <memory.h>
+#include <stdlib.h>
 using namespace std;
 
-struct circle
-{
-	int x, y, r;
-}c[300];
+int n, m;
+int parent[150];  // 初始值为-1，数组大小为节点总数
+// the maximum of nodes is 50
 
+struct edge
+{
+	int n1, n2;
+	int len;
+};
+
+int cmp(const void *a, const void *b) {
+	edge *x = (edge*)a;
+	edge *y = (edge*)b;
+	return y->len - x->len;
+}
+
+int find(int e) {
+	if (parent[e] < 0)
+		return e;      // find the parent node
+	else
+		return parent[e] = find(parent[e]); // path compression, point to the top most element
+}
+
+bool Union(int e1, int e2, int len) {
+	int root1 = find(e1);
+	int root2 = find(e2);
+
+	//并查集， 将不在同一个set的node合并在一起
+	if (root1 == root2)
+		return false; // two nodes belong to the same set,
+	//cycle formed, return false;
+
+	if (parent[root1] < parent[root2]) {
+		parent[root1] += parent[root2];
+		parent[root2] = root1;
+		// 如果root1 的node大于 root2 的node，将root2合并到root1
+	}
+	else
+	{
+		parent[root2] += parent[root1];
+		parent[root1] = root2;
+
+	}
+	return true;
+}
 
 
 int main() {
-	int n;
-	do
+	int cases;
+	cin >> cases;
+	for (int count = 1; count <= cases; count++)
 	{
-		cin >> n;
-		if (n == 0)
-			break;
-		for (int i = 1; i <= n; i++)
-			cin >> c[i].x >> c[i].y >> c[i].r;
-		double max = 0;
-
-		for (double i = 0; i <= 360; i += 0.25)
+		cin >> n >> m;
+		edge* e = new edge[m + 1];
+		memset(parent, -1, sizeof(parent));
+		for (size_t i = 0; i < m; i++)
 		{
-			double u = 500 * cos(i*M_PI / 180);
-			double v = 500 * sin(i*M_PI / 180);
-			double total = 0;
-			for (int j = 1; j <= n; j++)
-			{
-				double length = (u*c[j].x + v * c[j].y) / (sqrt(pow(u, 2) + pow(v, 2)));
-				if (length > 0) {
-					// cos(theta) must larger than 0, theta cannot be larger than 90 degree
-					double perpendicular = pow(c[j].x, 2) + pow(c[j].y, 2) - pow(length, 2);
-					if (perpendicular < pow(c[j].r, 2)) {
-						// have intersections
-						double newLength = 2 * sqrt(pow(c[j].r, 2) - perpendicular);
-						total += newLength;
-					}
-				}
-			}
-			if (total > max)
-				max = total;
+			cin >> e[i].n1 >> e[i].n2 >> e[i].len;
 		}
-		cout << setprecision(3) << fixed << max << endl;
-	} while (true);
+		qsort(e, m, sizeof(edge), cmp);
+		int minMax = e[0].len;
+		int numOfEdge = 0;
+		for (int i = 0; i < m; i++)
+		{
+			if (Union(e[i].n1, e[i].n2, e[i].len)) {
+				numOfEdge++;
+				if (e[i].len < minMax)
+					minMax = e[i].len;
+			}
+			if (numOfEdge == n - 1)
+				break;
+		}
+		cout << "Case #" << count << ": " << minMax << endl;
+	}
 	return 0;
 }
