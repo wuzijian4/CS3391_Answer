@@ -1,52 +1,78 @@
 #include <iostream>
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include <math.h>
-#include <iomanip>
-#include <algorithm>
-
+#include <string>
+#include <stdio.h>
 using namespace std;
 
-struct circle
+class personInfo
 {
-	int x, y, r;
-}c[300];
+public:
+	personInfo(string, int, int, int);
+	int compare(personInfo that);
+	string getName();
+private:
+	string name;
+	int day;
+	int month;
+	int year;
+};
 
+personInfo::personInfo(string n, int d, int m, int y)
+{
+	name = n;
+	day = d;
+	month = m;
+	year = y;
+}
 
+int personInfo::compare(personInfo that)
+{
+	if (this->year < that.year)
+		return 1;  // this is older
+	else if (this->year > that.year)
+		return -1;	//this is younger
+	else if (this->month < that.month)
+		return 1;
+	else if (this->month > that.month)
+		return -1;
+	else if (this->day < that.day)
+		return 1;
+	else if (this->day > that.day)
+		return -1;
+
+	return 0; // same birthday not supposed to happen
+}
+
+string personInfo::getName()
+{
+	return name;
+}
 
 int main() {
-	int n;
-	do
+	string name;
+	int day; int month; int year;
+	int numOfCases;
+	
+	cin >> numOfCases;
+	cin >> name >> day >> month >> year;
+	numOfCases--;
+	
+	personInfo oldest(name, day, month, year);
+	personInfo youngest(name, day, month, year);
+	
+	while (numOfCases>0)
 	{
-		cin >> n;
-		if (n == 0)
-			break;
-		for (int i = 1; i <= n; i++)
-			cin >> c[i].x >> c[i].y >> c[i].r;
-		double max = 0;
+		cin >> name >> day >> month >> year;
+		personInfo newOne(name, day, month, year);
+		if (oldest.compare(newOne) < 0)
+			oldest = newOne; // new one is older
 
-		for (double i = 0; i <= 360; i += 0.25)
-		{
-			double u = 500 * cos(i*M_PI / 180);
-			double v = 500 * sin(i*M_PI / 180);
-			double total = 0;
-			for (int j = 1; j <= n; j++)
-			{
-				double length = (u*c[j].x + v * c[j].y) / (sqrt(pow(u, 2) + pow(v, 2)));
-				if (length > 0) {
-					// cos(theta) must larger than 0, theta cannot be larger than 90 degree
-					double perpendicular = pow(c[j].x, 2) + pow(c[j].y, 2) - pow(length, 2);
-					if (perpendicular < pow(c[j].r, 2)) {
-						// have intersections
-						double newLength = 2 * sqrt(pow(c[j].r, 2) - perpendicular);
-						total += newLength;
-					}
-				}
-			}
-			if (total > max)
-				max = total;
-		}
-		cout << setprecision(3) << fixed << max << endl;
-	} while (true);
-	return 0;
+		if (youngest.compare(newOne) > 0)
+			youngest = newOne; // new one is younger
+		numOfCases--;
+	}
+
+	cout << youngest.getName() << endl;
+	cout << oldest.getName() << endl;;
+
+	return 0; 
 }
