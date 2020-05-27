@@ -1,52 +1,93 @@
 #include <iostream>
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include <math.h>
+#include <memory.h>
+#include <queue>
 #include <iomanip>
-#include <algorithm>
+#include <stdio.h>
 
 using namespace std;
 
-struct circle
+int visited[21]; // 最多只有20个节点
+int G[21][21];
+int n;
+
+struct node
 {
-	int x, y, r;
-}c[300];
+	int index;
+	int numOfConquer;
+};
+
+
+int bfs(int s, int t) {
+	memset(visited, 0, sizeof(visited));
+	visited[s] = 1;
+	node p = { s, 0 };
+	queue<node> q;
+	q.push(p);
+	while (!q.empty())
+	{
+		node p2 = q.front(); q.pop();
+		if (p2.index == t)
+			return p2.numOfConquer;
+
+		for (int i = 1; i <= 20; i++)
+		{
+			if (!visited[i] && i != p2.index && G[p2.index][i] == 1) {
+				int num = p2.numOfConquer + 1;
+				node temp;
+				temp.index = i;
+				temp.numOfConquer = num;
+				visited[i] = 1;
+				q.push(temp);
+			}
+		}
+
+	}
+	return -1;
+}
 
 
 
 int main() {
-	int n;
-	do
+	int count = 1;
+	while (cin>>n)
 	{
-		cin >> n;
-		if (n == 0)
-			break;
-		for (int i = 1; i <= n; i++)
-			cin >> c[i].x >> c[i].y >> c[i].r;
-		double max = 0;
 
-		for (double i = 0; i <= 360; i += 0.25)
+		memset(G, 0, sizeof(G));
+		int index = 1;
+		for (int i = 0; i < n; i++)
 		{
-			double u = 500 * cos(i*M_PI / 180);
-			double v = 500 * sin(i*M_PI / 180);
-			double total = 0;
-			for (int j = 1; j <= n; j++)
-			{
-				double length = (u*c[j].x + v * c[j].y) / (sqrt(pow(u, 2) + pow(v, 2)));
-				if (length > 0) {
-					// cos(theta) must larger than 0, theta cannot be larger than 90 degree
-					double perpendicular = pow(c[j].x, 2) + pow(c[j].y, 2) - pow(length, 2);
-					if (perpendicular < pow(c[j].r, 2)) {
-						// have intersections
-						double newLength = 2 * sqrt(pow(c[j].r, 2) - perpendicular);
-						total += newLength;
-					}
-				}
-			}
-			if (total > max)
-				max = total;
+			int adjacency;
+			cin >> adjacency;
+			G[index][adjacency] = 1;
+			G[adjacency][index] = 1;
 		}
-		cout << setprecision(3) << fixed << max << endl;
-	} while (true);
+
+		int n2 = 0;
+		for (int i = 2; i <= 19; i++)
+		{
+			index++;
+			cin >> n2;
+			for (int j = 0; j < n2; j++)
+			{
+				int adjacency;
+				cin >> adjacency;
+				G[index][adjacency] = 1;
+				G[adjacency][index] = 1;
+			}
+		}
+
+		int pairs;
+		cin >> pairs;
+		cout << "Test Set #" << count++ << endl;
+		for (int i = 0; i < pairs; i++)
+		{
+			int s, t;
+			cin >> s >> t;
+			int result = bfs(s, t);
+			printf("%2d to %2d: %d\n", s, t, result);
+
+		}
+		cout << endl;
+	}
 	return 0;
 }
