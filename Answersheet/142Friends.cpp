@@ -1,52 +1,55 @@
 #include <iostream>
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include <math.h>
-#include <iomanip>
+#include <stdlib.h>
+#include <memory.h>
 #include <algorithm>
-
 using namespace std;
 
-struct circle
-{
-	int x, y, r;
-}c[300];
+int parent[30005];
 
+int find(int e) {
+	if (parent[e] < 0)
+		return e;
+	else
+		return parent[e] = find(parent[e]);
+}
 
+void Unionset(int e1, int e2) {
+	parent[e1] += parent[e2];
+	parent[e2] = e1;
+}
+
+void Union(int e1, int e2) {	
+	int root1 = find(e1);
+	int root2 = find(e2);
+
+	if (root1 == root2)
+		return;
+	if (parent[root1] < parent[root2])
+		Unionset(root1, root2);
+	else
+		Unionset(root2, root1);
+}
 
 int main() {
-	int n;
-	do
-	{
-		cin >> n;
-		if (n == 0)
-			break;
-		for (int i = 1; i <= n; i++)
-			cin >> c[i].x >> c[i].y >> c[i].r;
-		double max = 0;
+	int cases;
+	cin >> cases;
 
-		for (double i = 0; i <= 360; i += 0.25)
+	while (cases--)
+	{
+		int n, m;
+		cin >> n >> m;
+		memset(parent, -1, sizeof(parent));
+		int c1, c2;
+		for (int i = 0; i < m; i++)
 		{
-			double u = 500 * cos(i*M_PI / 180);
-			double v = 500 * sin(i*M_PI / 180);
-			double total = 0;
-			for (int j = 1; j <= n; j++)
-			{
-				double length = (u*c[j].x + v * c[j].y) / (sqrt(pow(u, 2) + pow(v, 2)));
-				if (length > 0) {
-					// cos(theta) must larger than 0, theta cannot be larger than 90 degree
-					double perpendicular = pow(c[j].x, 2) + pow(c[j].y, 2) - pow(length, 2);
-					if (perpendicular < pow(c[j].r, 2)) {
-						// have intersections
-						double newLength = 2 * sqrt(pow(c[j].r, 2) - perpendicular);
-						total += newLength;
-					}
-				}
-			}
-			if (total > max)
-				max = total;
+			cin >> c1 >> c2;
+			Union(c1, c2);
 		}
-		cout << setprecision(3) << fixed << max << endl;
-	} while (true);
+		int mini = parent[0];
+		for (int i = 1; i <= n; i++)
+			mini = min(mini, parent[i]);
+		cout << abs(mini) << endl;
+	}
+	//system("pause");
 	return 0;
 }
