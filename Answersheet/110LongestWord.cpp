@@ -1,52 +1,36 @@
 #include <iostream>
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include <math.h>
-#include <iomanip>
-#include <algorithm>
-
+#include <sstream>
+#include <string>
 using namespace std;
-
-struct circle
-{
-	int x, y, r;
-}c[300];
-
+//A word is composed of only letters of the alphabet (a-z, A-Z) and may contain one hyphen (-)
+//or more.
 
 
 int main() {
-	int n;
+	string longest; int max = 0;
+	string input;
+
 	do
 	{
-		cin >> n;
-		if (n == 0)
+		cin >> input;
+		if (input == "E-N-D")
 			break;
-		for (int i = 1; i <= n; i++)
-			cin >> c[i].x >> c[i].y >> c[i].r;
-		double max = 0;
-
-		for (double i = 0; i <= 360; i += 0.25)
+		
+		string tmp = "";
+		for (int i = 0; i < input.length(); i++)
 		{
-			double u = 500 * cos(i*M_PI / 180);
-			double v = 500 * sin(i*M_PI / 180);
-			double total = 0;
-			for (int j = 1; j <= n; j++)
-			{
-				double length = (u*c[j].x + v * c[j].y) / (sqrt(pow(u, 2) + pow(v, 2)));
-				if (length > 0) {
-					// cos(theta) must larger than 0, theta cannot be larger than 90 degree
-					double perpendicular = pow(c[j].x, 2) + pow(c[j].y, 2) - pow(length, 2);
-					if (perpendicular < pow(c[j].r, 2)) {
-						// have intersections
-						double newLength = 2 * sqrt(pow(c[j].r, 2) - perpendicular);
-						total += newLength;
-					}
-				}
+			if (isalpha(input[i]) || input[i] == '-') {
+				char temp = tolower(input[i]);
+				tmp += temp; // 转化为小写
 			}
-			if (total > max)
-				max = total;
 		}
-		cout << setprecision(3) << fixed << max << endl;
+		if (tmp.length() > max) {
+			longest = tmp;
+			max = tmp.length();
+		}
+
 	} while (true);
+	cout << longest << endl;
+	//system("pause");
 	return 0;
 }
