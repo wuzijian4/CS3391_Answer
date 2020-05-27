@@ -1,52 +1,85 @@
 #include <iostream>
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include <math.h>
-#include <iomanip>
-#include <algorithm>
-
+#include <stack>
+#include <string>
+#include <stdio.h>
 using namespace std;
 
-struct circle
+int priority(char o) {
+	if (o == '(' || o == ')') return 0;
+	if (o == '+' || o == '-') return 1;
+	if (o == '*' || o == '/') return 2;
+	return -1;
+}
+
+int isOperator(char op)
 {
-	int x, y, r;
-}c[300];
-
-
-
+	if (op == '+' || op == '-' || op == '*' || op == '/')
+		return 1;
+	return 0;
+}
 int main() {
-	int n;
-	do
-	{
-		cin >> n;
-		if (n == 0)
-			break;
-		for (int i = 1; i <= n; i++)
-			cin >> c[i].x >> c[i].y >> c[i].r;
-		double max = 0;
+	int cases;
+	char in;
+	cin >> cases;
+	cin.ignore(); //skip n characters in the stream, default value of n is 1, or encounter the deliminater, 
+	cin.ignore(); //but invlove the deliminater.
 
-		for (double i = 0; i <= 360; i += 0.25)
+	while (cases > 0) {
+		stack<char> operator_stack;
+		string in;
+		while (true)
 		{
-			double u = 500 * cos(i*M_PI / 180);
-			double v = 500 * sin(i*M_PI / 180);
-			double total = 0;
-			for (int j = 1; j <= n; j++)
-			{
-				double length = (u*c[j].x + v * c[j].y) / (sqrt(pow(u, 2) + pow(v, 2)));
-				if (length > 0) {
-					// cos(theta) must larger than 0, theta cannot be larger than 90 degree
-					double perpendicular = pow(c[j].x, 2) + pow(c[j].y, 2) - pow(length, 2);
-					if (perpendicular < pow(c[j].r, 2)) {
-						// have intersections
-						double newLength = 2 * sqrt(pow(c[j].r, 2) - perpendicular);
-						total += newLength;
-					}
-				}
+			getline(cin, in);
+			if (in.length() == 0)
+				break;
+
+			// get the input, break when the equation finished
+			if (in[0] >= 48 && in[0] <= 57) {
+				cout << in[0];
 			}
-			if (total > max)
-				max = total;
+			else
+			{
+				
+				if (in[0] == '(')
+				{
+					operator_stack.push(in[0]);
+				}
+				else if (in[0] == ')')
+				{
+					while (operator_stack.top() != '(') {
+						cout << operator_stack.top();
+						operator_stack.pop();
+					}
+					operator_stack.pop(); // reomve the ')'
+				}
+				else if (isOperator(in[0]))
+				{
+					while (!operator_stack.empty() && priority(in[0]) <= priority(operator_stack.top()))
+					{
+						cout << operator_stack.top();
+						operator_stack.pop();
+					}
+					operator_stack.push(in[0]);
+				}
+				else
+				{
+					cout << in[0];
+				}
+
+			}
 		}
-		cout << setprecision(3) << fixed << max << endl;
-	} while (true);
+
+		while (!operator_stack.empty())
+		{
+			cout << operator_stack.top();
+			operator_stack.pop();
+		}
+
+		cout << endl;
+
+		cases--;
+		if (cases > 0) 
+			cout << endl;
+	}
 	return 0;
 }
